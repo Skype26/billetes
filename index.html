@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Código de Barras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f0f0f0;
+      text-align: center;
+    }
 
+    h1, h2 {
+      color: #333;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .usado {
+      background-color: #d4edda !important;
+      color: #155724;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 5px;
+    }
+
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+
+    #resetBtn {
+      background-color: #dc3545;
+    }
+
+    #resetBtn:hover {
+      background-color: #c82333;
+    }
+
+    #pdfBtn {
+      background-color: #007bff;
+    }
+
+    #pdfBtn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="contenidoPDF">
+    <h1>Registro de Código de Barras</h1>
+
+    <input type="text" id="inputEscaneo" placeholder="Escanea aquí" autofocus>
+
+    <table id="tablaCodigos">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Denominación</th>
+          <th>Código</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Historial de Resets</h2>
+    <table id="tablaResets">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha y Hora</th>
+          <th>Códigos Usados al Reset</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <button id="resetBtn" onclick="resetearEstados()">🔄 Resetear estados</button>
+  <button id="pdfBtn" onclick="generarPDF()">📄 Generar PDF</button>
+
+  <!-- html2pdf.js -->
+  <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+  <script>
+    const tablaBody = document.querySelector("#tablaCodigos tbody");
+
+    const codigosTotales = [
+      { denominacion: "10 soles", codigo: "A1B2C3" },
+      { denominacion: "10 soles", codigo: "X9Y8Z7" },
+      { denominacion: "10 soles", codigo: "K3L2M1" },
+      { denominacion: "10 soles", codigo: "J5H6G7" },
+      { denominacion: "10 soles", codigo: "Q1W2E3" },
+      { denominacion: "10 soles", codigo: "R4T5Y6" },
+      { denominacion: "10 soles", codigo: "U7I8O9" },
+      { denominacion: "10 soles", codigo: "P0A9S8" },
+      { denominacion: "10 soles", codigo: "D3F4G5" },
+      { denominacion: "10 soles", codigo: "H6J7K8" },
+
+      { denominacion: "20 soles", codigo: "M1N2B3" },
+      { denominacion: "20 soles", codigo: "V4C5X6" },
+      { denominacion: "20 soles", codigo: "Z7L8K9" },
+      { denominacion: "20 soles", codigo: "B0N9M8" },
+      { denominacion: "20 soles", codigo: "A7S6D5" },
+
+      { denominacion: "50 soles", codigo: "Q8W7E6" },
+      { denominacion: "50 soles", codigo: "R5T4Y3" },
+
+      { denominacion: "100 soles", codigo: "U2I3O4" },
+      { denominacion: "100 soles", codigo: "P5A6S7" },
+
+      { denominacion: "200 soles", codigo: "Z1X2C3" }
+    ];
+
+    function obtenerUsados() {
+      return JSON.parse(localStorage.getItem("codigosUsados")) || {};
+    }
+
+    function guardarUsados(usados) {
+      localStorage.setItem("codigosUsados", JSON.stringify(usados));
+    }
+
+    function guardarReset(fecha, cantidad) {
+      const resets = JSON.parse(localStorage.getItem("historialResets")) || [];
+      resets.push({ fecha, cantidad });
+      localStorage.setItem("historialResets", JSON.stringify(resets));
+    }
+
+    function cargarTabla() {
+      tablaBody.innerHTML = "";
+      const usados = obtenerUsados();
+
+      codigosTotales.forEach((item, index) => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.denominacion}</td>
+          <td>${item.codigo}</td>
+          <td>${usados[item.codigo] ? "Usado" : "Disponible"}</td>
+          <td>${usados[item.codigo] || "-"}</td>
+          <td>
+            <button ${usados[item.codigo] ? "disabled" : ""}>Marcar como usado</button>
+          </td>
+        `;
+
+        if (usados[item.codigo]) {
+          fila.classList.add("usado");
+        }
+
+        const boton = fila.querySelector("button");
+        boton.addEventListener("click", () => {
+          const fecha = new Date().toLocaleString();
+          usados[item.codigo] = fecha;
+          guardarUsados(usados);
+          cargarTabla();
+          cargarHistorialResets();
+        });
+
+        tablaBody.appendChild(fila);
+      });
+    }
+
+    function cargarHistorialResets() {
+      const resets = JSON.parse(localStorage.getItem("historialResets")) || [];
+      const tbody = document.querySelector("#tablaResets tbody");
+      tbody.innerHTML = "";
+
+      resets.forEach((item, index) => {
+        const fila = document.createElement("tr");
+        fila.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.fecha}</td>
+          <td>${item.cantidad}</td>
+        `;
+        tbody.appendChild(fila);
+      });
+    }
+
+    function resetearEstados() {
+      if (confirm("¿Estás seguro de que quieres resetear todos los estados?")) {
+        const usados = obtenerUsados();
+        const fechaReset = new Date().toLocaleString();
+        guardarReset(fechaReset, Object.keys(usados).length);
+
+        localStorage.removeItem("codigosUsados");
+        cargarTabla();
+        cargarHistorialResets();
+        document.getElementById("inputEscaneo").focus();
+      }
+    }
+
+    function generarPDF() {
+      const contenido = document.getElementById("contenidoPDF");
+      const opciones = {
+        margin: 0.5,
+        filename: `registro-codigos-${new Date().toISOString().slice(0,10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opciones).from(contenido).save();
+    }
+
+    document.getElementById("inputEscaneo").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        const codigoEscaneado = this.value.trim().toUpperCase();
+        this.value = "";
+
+        const usados = obtenerUsados();
+        const encontrado = codigosTotales.find(item => item.codigo === codigoEscaneado);
+
+        if (encontrado) {
+          if (!usados[codigoEscaneado]) {
+            usados[codigoEscaneado] = new Date().toLocaleString();
+            guardarUsados(usados);
+            cargarTabla();
+            cargarHistorialResets();
+            alert("✅ Código marcado como usado: " + codigoEscaneado);
+          } else {
+            alert("⚠️ Este código ya está marcado como usado.");
+          }
+        } else {
+          alert("❌ Código no reconocido: " + codigoEscaneado);
+        }
+      }
+    });
+
+    // Inicializar
+    cargarTabla();
+    cargarHistorialResets();
+  </script>
+
+</body>
+</html>
