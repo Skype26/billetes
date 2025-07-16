@@ -11,20 +11,46 @@ const codigosTotales = [
   { denominacion: "10 soles", codigo: "P0A9S8" },
   { denominacion: "10 soles", codigo: "D3F4G5" },
   { denominacion: "10 soles", codigo: "H6J7K8" },
+  // Nuevos códigos de 10 soles
+  { denominacion: "10 soles", codigo: "L1M2N3" },
+  { denominacion: "10 soles", codigo: "O4P5Q6" },
+  { denominacion: "10 soles", codigo: "R7S8T9"  },
+  { denominacion: "10 soles", codigo: "U0V1W2" },
+  { denominacion: "10 soles", codigo: "X3Y4Z5" },
+  { denominacion: "10 soles", codigo: "A6B7C8" },
+  { denominacion: "10 soles", codigo: "D9E0F1" },
+  { denominacion: "10 soles", codigo: "G2H3I4" },
+  { denominacion: "10 soles", codigo: "J5K6L7" },
+  { denominacion: "10 soles", codigo: "M8N9O0" },
 
   { denominacion: "20 soles", codigo: "M1N2B3" },
   { denominacion: "20 soles", codigo: "V4C5X6" },
   { denominacion: "20 soles", codigo: "Z7L8K9" },
   { denominacion: "20 soles", codigo: "B0N9M8" },
   { denominacion: "20 soles", codigo: "A7S6D5" },
+  // Nuevos códigos de 20 soles
+  { denominacion: "20 soles", codigo: "F4G3H2" },
+  { denominacion: "20 soles", codigo: "I1J0K9" },
+  { denominacion: "20 soles", codigo: "L8M7N6" },
+  { denominacion: "20 soles", codigo: "O5P4Q3" },
+  { denominacion: "20 soles", codigo: "R2S1T0" },
 
   { denominacion: "50 soles", codigo: "Q8W7E6" },
   { denominacion: "50 soles", codigo: "R5T4Y3" },
+  // Nuevos códigos de 50 soles
+  { denominacion: "50 soles", codigo: "U2I1O0" },
+  { denominacion: "50 soles", codigo: "P9A8S7" },
+  
 
   { denominacion: "100 soles", codigo: "U2I3O4" },
   { denominacion: "100 soles", codigo: "P5A6S7" },
+  //nuevos códigos de 100 soles
+  { denominacion: "100 soles", codigo: "D8F9G0" },
+  { denominacion: "100 soles", codigo: "H1J2K3" },
 
-  { denominacion: "200 soles", codigo: "Z1X2C3" }
+  { denominacion: "200 soles", codigo: "Z1X2C3" },
+  // Nuevos códigos de 200 soles
+  { denominacion: "200 soles", codigo: "V4B5N6" }
 ];
 
 function obtenerUsados() {
